@@ -18,7 +18,6 @@
 - [Overview](#-overview)
 - [Tasks](#-tasks)
 - [Dataset](#-dataset)
-- [Methodology](#-methodology)
 - [Feature Engineering](#-feature-engineering)
 - [Model & Evaluation](#-model--evaluation)
 - [Key Findings](#-key-findings)
@@ -30,9 +29,7 @@
 
 ## 🔍 Overview
 
-This project builds a full customer churn prediction system for a banking context, modelled on real-world data science workflows. The core business problem: **identify which customers are most likely to leave before they do**, enabling targeted, cost-effective retention campaigns instead of reactive damage control.
-
-The pipeline covers everything from merging five disparate data sources into a single master dataset, through exploratory analysis and preprocessing, to a tuned Random Forest model that scores every customer by churn probability — ready for CRM import.
+This project builds a full customer churn prediction system for a banking context, modelled on real-world data science workflows as a part of the **LLOYDS Banking Group Data Science Job Simulation** hosted on [Forage](https://www.theforage.com/). The core business problem is **identifying which customers are most likely to leave before they do**, enabling targeted, cost-effective retention campaigns instead of reactive damage control. Also, the pipeline covers everything from merging five disparate data sources into a single master dataset, through exploratory analysis and preprocessing.
 
 ---
 
@@ -42,12 +39,12 @@ The pipeline covers everything from merging five disparate data sources into a s
 
 | Phase | Description |
 |---|---|
-| **Phase 1** | Data gathering — load and merge 5 Excel sheets on `CustomerID` |
-| **Phase 2** | Exploratory Data Analysis — distributions, correlations, categorical rates, anomalies |
-| **Phase 3** | Preprocessing — missing values, outlier capping, feature engineering, encoding, scaling |
-| **Phase 4** | Model selection — Logistic Regression baseline vs Random Forest with GridSearchCV tuning |
-| **Phase 5** | Evaluation — confusion matrix, ROC-AUC, Precision-Recall, Stratified K-Fold CV |
-| **Phase 6** | Business recommendations — churn probability scoring, risk tiers, retention action mapping |
+| **Phase 1** | Data gathering - load and merge 5 Excel sheets on `CustomerID` |
+| **Phase 2** | Exploratory Data Analysis - distributions, correlations, categorical rates, anomalies |
+| **Phase 3** | Preprocessing - missing values, outlier capping, feature engineering, encoding, scaling |
+| **Phase 4** | Model selection - Logistic Regression baseline vs Random Forest with GridSearchCV tuning |
+| **Phase 5** | Evaluation - confusion matrix, ROC-AUC, Precision-Recall, Stratified K-Fold CV |
+| **Phase 6** | Business recommendations - churn probability scoring, risk tiers, retention action mapping |
 
 ---
 
@@ -74,34 +71,14 @@ The pipeline covers everything from merging five disparate data sources into a s
 
 ---
 
-## ⚙️ Methodology
-
-```
-5 Excel Sheets → Aggregation → Left Join Merge → EDA → Feature Engineering
-→ Encoding → Scaling → SMOTE → Model Training → CV Evaluation → Risk Scoring
-```
-
-1. **Data gathering** — aggregated Transaction and Service sheets per CustomerID, then merged all 5 sheets via left join anchored on Demographics
-2. **EDA** — churn distribution, spend histograms, login violin plots, unresolved rate box plots, correlation heatmap, categorical churn rates, anomaly flags
-3. **Preprocessing** — missing value imputation, IQR outlier capping, log transformation on spend
-4. **Feature engineering** — 3 new features derived from domain logic
-5. **Encoding** — one-hot for nominal categories, ordinal for IncomeLevel
-6. **Scaling** — StandardScaler applied to all continuous features
-7. **Class balancing** — SMOTE applied to training set only (after train/test split)
-8. **Modelling** — Logistic Regression baseline + GridSearchCV-tuned Random Forest
-9. **Evaluation** — 5-Fold Stratified Cross-Validation, confusion matrix, ROC and Precision-Recall curves
-10. **Scoring** — every customer assigned a churn probability and risk tier (Low / Medium / High)
-
----
-
 ## 🛠️ Feature Engineering
 
 3 new features were constructed from cross-sheet domain logic:
 
 | New Feature | Logic | Rationale |
 |---|---|---|
-| `unresolved_rate` | `unresolved_count / (total_interactions + 1)` | Normalises complaint burden by contact volume — more meaningful than raw count |
-| `days_since_login` | `max(LastLoginDate) - LastLoginDate` in days | Converts date to numeric recency; longer inactivity = higher churn risk |
+| `unresolved_rate` | `unresolved_count / (total_interactions + 1)` | Normalises complaint burden by contact volume - more meaningful than raw count |
+| `days_since_login` | `max(LastLoginDate) - LastLoginDate` in days | Converts date to numeric recency; longer inactivity means higher churn risk |
 | `log_spend` | `log1p(total_spend)` | Reduces right skew in spend distribution; `log1p` handles zero-spend customers safely |
 
 > `unresolved_count` and `complaint_count` ranked as the **strongest positive correlates with ChurnStatus** in the correlation heatmap, confirming that service quality features carry the most predictive signal.
@@ -109,20 +86,6 @@ The pipeline covers everything from merging five disparate data sources into a s
 ---
 
 ## 🤖 Model & Evaluation
-
-### Model Configuration
-
-```python
-RandomForestClassifier(
-    n_estimators  = 200,        # tuned via GridSearchCV
-    max_depth     = 10,         # regularisation
-    class_weight  = "balanced", # compensates for 80/20 imbalance
-    random_state  = 42,
-    n_jobs        = -1
-)
-```
-
-Logistic Regression was retained as the explainability benchmark — essential for banking stakeholders who require model transparency alongside predictive power.
 
 ### 5-Fold Stratified Cross-Validation Results
 
@@ -134,57 +97,21 @@ Logistic Regression was retained as the explainability benchmark — essential f
 | **Precision** | Accuracy of churn predictions | Secondary |
 | **Accuracy** | Overall correct classifications | Reference only |
 
-> **Priority metric: Recall + ROC-AUC.** In churn prediction, missing a churner (False Negative) costs more than a false alarm (False Positive). A missed churner means zero retention intervention and lost revenue. A false alarm costs only a retention offer.
-
-### Top 10 Feature Importances
-
-| Rank | Feature | Type | Importance |
-|---|---|---|---|
-| 🥇 1 | `unresolved_count` | Service | Highest |
-| 🥈 2 | `complaint_count` | Service | High |
-| 🥉 3 | `total_spend` | Transaction | High |
-| 4 | `LoginFrequency` | Online Activity | Medium |
-| 5 | `days_since_login` | Engineered | Medium |
-| 6 | `transaction_count` | Transaction | Medium |
-| 7 | `unresolved_rate` *(engineered)* | Engineered | Medium |
-| 8 | `avg_spend` | Transaction | Low-Medium |
-| 9 | `IncomeLevel` | Demographics | Low |
-| 10 | `log_spend` *(engineered)* | Engineered | Low |
+> **Priority metric: Recall and ROC-AUC.** In churn prediction, missing a churner (False Negative) costs more than a false alarm (False Positive). A missed churner means zero retention intervention and lost revenue. A false alarm costs only a retention offer.
 
 ---
 
 ## 💡 Key Findings
 
-- **Service quality is the dominant churn driver.** `unresolved_count` and `complaint_count` rank as the top two predictors. Customers with unresolved complaints have a median unresolved rate of 0.50 vs 0.33 for retained customers — a 17-point gap that directly signals dissatisfaction.
+- **Service quality is the dominant churn driver** (`unresolved_count` and `complaint_count`). Customers with unresolved complaints have a median unresolved rate of 0.50 vs 0.33 for retained customers.
 
 - **Low spend + low engagement = highest risk profile.** The scatter plot of LoginFrequency vs total_spend shows churned customers clustering densely in the bottom-left quadrant. Customers who neither spend much nor log in frequently have little reason to stay.
 
-- **Top 5% spenders churn at 26%** — above the 20.4% average — indicating that high monetary value does not guarantee loyalty. These customers are high-priority for proactive retention.
-
-- **Age is a weak standalone predictor.** The age distribution of churned vs retained customers overlaps heavily across 18–70, confirming that demographic signals alone are insufficient for churn prediction.
+- **Top 5% spenders churn at 26%** indicating that high monetary value does not guarantee loyalty. These customers are high-priority for proactive retention.
 
 - **IncomeLevel and MaritalStatus show category-level variation.** Low-income and single/divorced customers churn at above-average rates, pointing to price sensitivity as a secondary driver.
 
 - **Class imbalance is mild but consequential.** The 80/20 split means a naive majority-class classifier achieves 79.6% accuracy while catching zero churners. SMOTE on the training set and stratified splits were used to address this.
-
----
-
-## 📣 Business Recommendations
-
-| Churn Driver | Recommended Action |
-|---|---|
-| High `unresolved_count` | Proactive support outreach — resolve open tickets before escalation |
-| Low `total_spend` | Loyalty reward offers to increase financial engagement |
-| High `days_since_login` | Re-engagement email campaign for customers inactive 30+ days |
-| High `complaint_count` | Fee waiver or service credit to address repeat dissatisfaction |
-| Low `transaction_count` | Personalised product recommendations to increase purchase frequency |
-
-**Risk tiers assigned:**
-- 🔴 **High Risk** (churn probability ≥ 0.70) → Immediate retention campaign
-- 🟡 **Medium Risk** (0.40–0.69) → Proactive monitoring + soft offer
-- 🟢 **Low Risk** (< 0.40) → Standard engagement
-
-All customers are scored and exported as `high_risk_customers.csv` for direct CRM import.
 
 ---
 
@@ -222,10 +149,15 @@ jupyter notebook LLOYDS.ipynb
 > **Google Colab users:** Upload `Customer_Churn_Data_Large.xlsx` to `/content/` and run all cells in order.
 
 ---
+## 🏆 Certificate
+
+[**LLOYDS Banking Group Data Science Job Simulation** - Forage](https://www.theforage.com/completion-certificates/Zbnc2o4ok6kD2NEXx/EuvC8GPjkZ6xaiP9p_Zbnc2o4ok6kD2NEXx_699b43f63b2e4c13b63d62c9_1777102463356_completion_certificate.pdf)
+📅 Completed: **April 25, 2026**
+---
 
 <div align="center">
 
-**Built as a portfolio project in customer churn prediction for banking**
+**Built as part of the British Airways × Forage Job Simulation**
 
 [![GitHub](https://img.shields.io/badge/More%20Projects-GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/1453nicat)
 
