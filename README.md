@@ -21,7 +21,6 @@
 - [Feature Engineering](#-feature-engineering)
 - [Model & Evaluation](#-model--evaluation)
 - [Key Findings](#-key-findings)
-- [Business Recommendations](#-business-recommendations)
 - [Tech Stack](#-tech-stack)
 - [How to Run](#-how-to-run)
 
@@ -44,7 +43,6 @@ This project builds a full customer churn prediction system for a banking contex
 | **Phase 3** | Preprocessing - missing values, outlier capping, feature engineering, encoding, scaling |
 | **Phase 4** | Model selection - Logistic Regression baseline vs Random Forest with GridSearchCV tuning |
 | **Phase 5** | Evaluation - confusion matrix, ROC-AUC, Precision-Recall, Stratified K-Fold CV |
-| **Phase 6** | Business recommendations - churn probability scoring, risk tiers, retention action mapping |
 
 ---
 
