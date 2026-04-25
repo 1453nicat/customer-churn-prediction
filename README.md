@@ -150,7 +150,7 @@ jupyter notebook LLOYDS.ipynb
 
 ## 🏆 Certificate
 
-[**LLOYDS Banking Group Data Science Job Simulation** - Forage](https://www.theforage.com/completion-certificates/Zbnc2o4ok6kD2NEXx/EuvC8GPjkZ6xaiP9p_Zbnc2o4ok6kD2NEXx_699b43f63b2e4c13b63d62c9_1777102463356_completion_certificate.pdf)
+[**LLOYDS Banking Group Data Science Job Simulation - Forage**](https://www.theforage.com/completion-certificates/Zbnc2o4ok6kD2NEXx/EuvC8GPjkZ6xaiP9p_Zbnc2o4ok6kD2NEXx_699b43f63b2e4c13b63d62c9_1777102463356_completion_certificate.pdf)
 
 📅 Completed: **April 25, 2026**
 
